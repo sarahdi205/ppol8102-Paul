@@ -1,0 +1,48 @@
+---
+title: "Codebook"
+output: github_document
+---     Author: Sarah Paul
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Open the file
+
+```{r}
+library(readr)
+eclsk <- read_csv("~/GitHub/ppol8102-Paul/codebook/eclsk.csv")
+View(eclsk)
+```
+
+
+```{r}
+ summary(eclsk)
+
+```
+## Description
+This data contains information on math and reading scores of students, Parent education whether high school, Bachelors of Graduate school, income category, age, sex.
+
+##Variable description
+
+Dependent variable : read score. This is a continous variable 
+Independent variable: Parent education. This is a categorical variable. Where High school or less = A.  College = B, Graduate = C
+Control variable: Imcome. This is a categorical variable andgrouped into Low, middle or high
+```{r}
+
+names(eclsk)
+```
+## plot a graph
+```{r}
+boxplot(read~parent.ed, data= eclsk)
+```
+##create a density plot
+```{r}
+plot(density(eclsk$read))
+```
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
