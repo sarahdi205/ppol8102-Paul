@@ -1,0 +1,122 @@
+---
+title: "Untitled"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+
+```{r cars}
+summary(cars)
+```
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+
+```
+
+
+## Including Code
+```{r}
+library(readr)
+clean_data <- read.csv("~/GitHub/ppol8102-Paul/codebook/clean_data.csv")
+View(clean_data)
+```
+
+##Inspect the data
+```{r}
+head(clean_data)
+```
+
+```{r}
+str(clean_data)
+```
+
+```{r}
+summary(clean_data)
+```
+
+##Description
+This data contains variables on Preventive care utilization from NHANES 2017 - 2018 dataset. The variables include age, gender, education, income,marital status,race, general health condition,mental health,oral health and health insurance.
+
+## Variable Description
+Dependent variables: General Health. This is an ordinal categorical variable
+                     Mental Health. This is Binary
+                     Oral Health: This is a categorical variable
+Independent variable:  Race. This is a categorical variable ( Black or White)
+Control variables: Age, gender, income, education, marital status, health insurance. These are categorical                      variables.
+
+You can include R code in the document as follows:
+
+
+## Converting Race to binary
+```{r}
+clean_data$race <- as.factor(clean_data$race)
+levels(clean_data$race)
+```
+```{r}
+clean_data$health <- as.factor(clean_data$health)
+levels(clean_data$health)
+```
+```{r}
+str(clean_data$health)
+```
+
+#Convert health from factor to numeric
+```{r}
+clean_data$health <- as.numeric(as.character(clean_data$health))
+str(clean_data$health)
+```
+
+##Summary statistics for general health by race
+```{r}
+clean_data %>%
+  group_by(race) %>%
+  summarise(
+    Mean_health = mean(health, na.rm = TRUE),
+    SD_health = sd(health, na.rm = TRUE),
+    N = n()
+  )
+```
+
+# Check for missing values in the health variable
+```{r}
+sum(is.na(clean_data$health))
+sum(!is.finite(clean_data$health))
+```
+
+##Removing rows with missing values and imputing missing values
+```{r}
+clean_data <- clean_data %>% filter(is.finite(health))
+clean_data$health[is.na(clean_data$health)] <- mean(clean_data$health, na.rm = TRUE)
+```
+
+##Boxplot of Health by Race
+```{r}
+ggplot(clean_data, aes(x = race, y = health)) +
+  geom_boxplot() +
+  theme_minimal() +
+  labs(
+    title = "Comparison of General Health by Race",
+    x = "Race",
+    y = "Health (1 = Poor, 5 = Excellent)"
+  )
+```
+
+
+
+
+You can also embed plots, for example:
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

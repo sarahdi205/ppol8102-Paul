@@ -1,0 +1,101 @@
+---    
+title: "Untitled"
+output: github_document
+author: "Sarah Paul"
+---
+    
+ 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+
+## Including Code
+
+You can include R code in the document as follows:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+##Install the Bootstrap package
+```{r}
+#install.packages("boot")
+library("boot")
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(broom)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+clean_data <- read.csv("~/GitHub/ppol8102-Paul/codebook/clean_data.csv")
+View(clean_data)
+```
+
+##Dependent variable
+Conceptualization:
+General Health Condition: This is the overall state of physical, mental and emotional well being of an individual.
+
+Operationalization: This is measured by asking respondents how they will rate their/spouse health in general from from a scale of Excellent to poor.
+
+```{r}
+str(clean_data$health)
+```
+
+##convert the dependent variable from categorical to numeric
+```{r}
+clean_data$health <- as.numeric(factor(clean_data$health, 
+    levels = c("Excellent", "Very Good", "Good", "Fair", "Poor"), 
+    labels = c(5, 4, 3, 2, 1), exclude = NULL))
+str(clean_data$health)
+```
+```{r}
+mean_clean_data_health <- mean(clean_data$health, na.rm=T)
+```
+
+```{r}
+health <- clean_data$health
+```
+
+## Simulating the data using bootstrapping
+```{r}
+n <-nrow(clean_data)
+boot<- sample(n, replace = TRUE)
+health_boot <- health[boot]
+ratio_boot <- median(health_boot)
+```
+
+
+```{r}
+boot_ratio <- function(data){
+n <- nrow(data)
+boot <- sample(1:n, replace=TRUE)
+health_boot <- data$health[boot]
+mean(health_boot)}
+
+```
+
+```{r}
+n_sims <- 1000
+output <- replicate(n_sims, boot_ratio(data=clean_data))
+hist(output)
+
+```
+
