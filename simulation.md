@@ -123,7 +123,7 @@ health <- clean_data$health
 n <-nrow(clean_data)
 boot<- sample(n, replace = TRUE)
 health_boot <- health[boot]
-ratio_boot <- median(health_boot)
+ratio_boot <- mean(health_boot, na.rm = T)
 ```
 
 ``` r
@@ -131,13 +131,19 @@ boot_ratio <- function(data){
 n <- nrow(data)
 boot <- sample(1:n, replace=TRUE)
 health_boot <- data$health[boot]
-mean(health_boot)}
+mean(health_boot, na.rm = T)}
 ```
 
 ``` r
-n_sims <- 1000
+n_sims <- 5000
 output <- replicate(n_sims, boot_ratio(data=clean_data))
-hist(output)
+hist(output, col = "pink")
 ```
 
 ![](simulation_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
+
+``` r
+print(sd(output))
+```
+
+    ## [1] 0.014769
