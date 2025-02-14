@@ -146,4 +146,13 @@ hist(output, col = "pink")
 print(sd(output))
 ```
 
-    ## [1] 0.014769
+    ## [1] 0.01512628
+
+\##Confidence Interval
+
+``` r
+ (quantile(output, probs = c(0.025, 0.975)))
+```
+
+    ##     2.5%    97.5% 
+    ## 2.361460 2.421323

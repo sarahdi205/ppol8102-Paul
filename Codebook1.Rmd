@@ -74,7 +74,7 @@ str(clean_data$health)
 
 #Convert health from factor to numeric
 ```{r}
-clean_data$health <- as.numeric(as.character(clean_data$health))
+clean_data$health <- as.numeric(as.character(clean_data$health, exclude = NULL))
 str(clean_data$health)
 ```
 
@@ -113,6 +113,20 @@ ggplot(clean_data, aes(x = race, y = health)) +
   )
 ```
 
+
+
+
+```{r}
+clean_data_oral <-factor(clean_data$oral, levels = c("6 months or less", "more than 6 months"),
+                                     labels = c("6 months or less", "more than 6 months"), exclude = NULL)
+```
+
+```{r}
+clean_data_oral <- ifelse(clean_data_oral== "6 months or less", 0, 1)
+table(clean_data_oral, useNA = "always")
+sum(is.na(clean_data$oral))
+str(clean_data_oral)
+```
 
 
 

@@ -32,7 +32,9 @@ plot(pressure)
 ##Install the Bootstrap package
 ```{r}
 #install.packages("boot")
+install.packages("rstanarm")
 library("boot")
+
 ```
 
 ```{r}
@@ -40,6 +42,7 @@ library(ggplot2)
 library(dplyr)
 library(tidyverse)
 library(broom)
+
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
@@ -66,6 +69,8 @@ clean_data$health <- as.numeric(factor(clean_data$health,
     labels = c(5, 4, 3, 2, 1), exclude = NULL))
 str(clean_data$health)
 ```
+
+
 ```{r}
 mean_clean_data_health <- mean(clean_data$health, na.rm=T)
 ```
@@ -98,5 +103,10 @@ output <- replicate(n_sims, boot_ratio(data=clean_data))
 hist(output, col = "pink")
 print(sd(output))
 
+```
+
+##Confidence Interval
+```{r}
+ (quantile(output, probs = c(0.025, 0.975)))
 ```
 

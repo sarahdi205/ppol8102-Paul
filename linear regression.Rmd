@@ -1,0 +1,89 @@
+---
+title: "Untitled"
+output: github_document
+author: sarah paul
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+
+## Including Code
+
+You can include R code in the document as follows:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+data <- read.csv("codebook/clean_data.csv")
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(broom)
+library(boot)
+```
+
+```{r}
+#install.packages("rstanarm")
+library("rstanarm")
+```
+
+```{r}
+data_oral <- factor(data$oral, levels = c("6 months or less", "more than 6 months"), 
+                    labels =c(0,1), exclude = NULL)
+data$oral <- as.numeric(data$oral == "6 months or less")
+print(data)
+```
+
+##fitting a regression
+```{r}
+model_1 <- stan_glm(oral~race, data=data)
+print(model_1)
+```
+```{r}
+print(model_1, digits = 2)
+```
+
+```{r}
+race <- as.numeric(data$race == "Blacks")
+```
+
+
+
+```{r}
+plot(race,data$oral, main = "Data and fitted regression line")
+a_hat <-coef(model_1)
+b_hat <-coef(model_1)
+abline(a_hat, b_hat)
+
+race_bar <- mean(race)
+text(race_bar, a_hat+ b_hat* race_bar,
+     paste("race =", round(a_hat, 2), "+" , round(b_hat, 2), "* race"), adj= 0)
+```
+
+##compute R2
+```{r}
+R2 <- 1 - sigma(model_1)^2 / sd(data$oral, na.rm=T)^2
+print(R2)
+```
+
+## The R2 explains a small portion of the variance
