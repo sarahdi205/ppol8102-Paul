@@ -1,0 +1,153 @@
+---
+title: "Untitled"
+output: github_document
+author: sarah paul
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## GitHub Documents
+
+This is an R Markdown format used for publishing markdown documents to GitHub. When you click the **Knit** button all R code chunks are run and a markdown file (.md) suitable for publishing to GitHub is generated.
+
+## Including Code
+
+You can include R code in the document as follows:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+data <- read.csv("C:/Users/sarad/OneDrive/Desktop/Studio 2/clean_data.csv")
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(broom)
+library(boot)
+library("rstanarm")
+library(reshape2)
+
+```
+
+```{r}
+#install.packages("mice")
+#install.packages("bayesplot")
+library(mice)
+library(bayesplot)
+```
+
+
+```{r}
+data_oral <- factor(data$oral, levels = c("6 months or less", "more than 6 months"),
+                    labels = c(0,1), exclude = NULL)
+data$oral <- as.numeric(data$oral == "6 months or less")
+print(data)
+```
+
+##predictive mean matching for missing variables
+```{r}
+imputed_data <- mice(data , method = "pmm", m = 5 )
+complete_data <- complete(imputed_data)
+```
+
+```{r}
+model_1 <- stan_glm(oral ~ race + gender + age +educ + income + marital_status + insurance,
+                    data = data , 
+                    family = gaussian(),
+                    weights = weight ,
+                    chains = 4, iter = 2000, seed = 1234)
+summary(model_1)
+```
+
+## Interpretation of result
+Race does not significantly predict oral health disparities as the estimate and standard deviation are 0.0. Lack of health insurance is associated with worse oral health ( SD = 0.2). Higher education is associated with better oral health. Older age groups had slightly lower oral health score than younger age group.
+
+```{r}
+fit_1 <- stan_glm(oral ~ race, data = data)
+print(fit_1)
+```
+
+```{r}
+fit <- stan_glm(oral ~ 1, data = data)
+sims <- as.matrix(fit)
+n_sims <- nrow(sims)
+n <- length(data$y)
+oral_rep <- array(NA, c(n_sims, n))
+for (s in 1:n_sims) {oral_rep[s,] <- rnorm(n, sims[s,1], sims[s,2])
+}
+```
+
+```{r}
+length(na.omit(oral_rep[s, ]))
+print(class(oral_rep[s, ]))  # Check if it's numeric
+print(str(oral_rep[s, ])) 
+```
+
+
+```{r}
+oral_rep_df <- as.data.frame(oral_rep)  # Convert matrix to data frame
+oral_rep_df$sim_id <- 1:nrow(oral_rep_df)
+oral_rep_long <- melt(oral_rep_df, id.vars = "sim_id", variable.name = "Observation", value.name = "Simulated_Oral")
+# Check if oral_rep_long was created properly
+head(oral_rep_long)
+```
+
+```{r}
+plot(model_1$residuals, model_1$y)
+```
+
+
+
+```{r}
+ ggplot() +
+  geom_density(aes(x = oral_rep_long$value), fill = "blue", alpha = 0.5) +
+  geom_density(aes(x = data$oral), color = "red", size = 1) +
+  labs(title = "Comparison of Simulated vs Observed Data",
+       x = "Oral Values",
+       y = "Density") +
+  theme_minimal()
+```
+
+
+```{r}
+sims <- as.matrix(fit_1)
+predicted <- predict(fit_1)
+resid <- data$oral - predicted
+print(resid)
+plot(sims)
+```
+
+
+
+```{r}
+colnames(data)
+```
+
+
+```{r}
+model <- lm(oral ~ race + educ + age + gender + marital_status + income + insurance, 
+            data = data, weights =  weight, na.action = na.exclude)
+summary(model)
+```
+## Education and income significantly improve oral health, with higher education being strongly associated with better outcomes. Age, race, gender, marital status, and insurance all play a role in oral health. Individuals aged 20-39 experience the sharpest decline, while white individuals have better oral health than non-White individuals. Males have slightly worse oral health than females, and those without insurance have worse oral health, but the effect is not as significant.
+
+
+
+
+
